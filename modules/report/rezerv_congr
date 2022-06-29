@@ -1,0 +1,1041 @@
+<?php
+
+if(!defined("AP")) exit("Доступ к файлу напрямую запрещен!");
+
+if(auth===FALSE)
+{
+	header("location: /login.html");
+}
+
+if($user_arr[4]!='3' and $user_arr[4]!='9')
+{
+  header("location: /index.html");
+}
+    require_once("template/head.php");
+
+	$tbid=$_COOKIE['tbl'];
+	$pkey=$_COOKIE['prt'];
+	$selprf=mysql_fetch_array(mysql_query("SELECT `pref` FROM `tb_congr` WHERE `id`='$tbid'"));
+	$select_table="tb_stend_".$selprf[0];
+
+	//$pref=mysql_fetch_array(mysql_query("SELECT `pref` FROM `tb_congr` WHERE `uid`='".$user_arr[6]."'"));
+	//$select_table="tb_stend_".$pref[0]."";
+
+    $mn = dateprotect($get_array['mn']);
+    $y = dateprotect($get_array['y']);
+	$timeid = dateprotect($get_array['tid']);
+    $dateid = dateprotect($get_array['did']);
+    $userid = dateprotect($get_array['uid']);
+    $fixdid = dateprotect($get_array['fid']);
+    $getpag = dateprotect($get_array['pag']);
+
+
+    $post_time = dateprotect($post_array['t']);
+	$post_timeid = dateprotect($post_array['p']);
+    $post_dateid = dateprotect($post_array['i']);
+    $post_userid = dateprotect($post_array['pp']);
+    $post_fixdid = dateprotect($post_array['pv']); 
+	
+	$rap_year=mysql_fetch_array(mysql_query("SELECT * FROM `st_config`  WHERE `key`='report_year'"));
+	$rp_ye=explode("|",$rap_year['param']);
+		  
+	
+
+		
+		$rap_year=mysql_fetch_array(mysql_query("SELECT * FROM `st_config`  WHERE `key`='report_year'"));
+		$rp_ye=explode("|",$rap_year['param']);
+		if($y==''){
+			if($_COOKIE['y']==''){
+				setcookie("y", $year);
+			}
+			else{
+				$year=$_COOKIE['y'];
+			}
+		}
+		else{
+			$year=$y;
+			setcookie("y", $year);
+		}
+
+			
+			
+			
+if (count($get_array['ct']) != 0){ 
+
+
+   $get_for_user=mysql_query("SELECT * FROM `users` WHERE `rid`='".$user_arr[6]."'");
+   $numrow=mysql_num_rows($get_for_user);
+   echo 'количество обрабатывемых запросов'.$numrow;
+   
+   
+
+   while($row=mysql_fetch_array($get_for_user))
+        {
+			$year=date("Y");
+			$lyear=$year+1;
+			$param=$lyear.'|'.$year;
+			$rap_num=mysql_query("SELECT * FROM `tb_raport`  WHERE `uid`='".$row[0]."' and `year`='".$lyear."'");
+			$numrow=mysql_num_rows($rap_num);
+			
+			if($numrow==0){
+			$add_raport=mysql_query("INSERT INTO `tb_raport`  VALUES (NULL,'".$row[0]."','".$row[6]."',
+																	'0|0|0|0|0||0|0','0|0|0|0|0||0|0','0|0|0|0|0||0|0','0|0|0|0|0||0|0','0|0|0|0|0||0|0','0|0|0|0|0||0|0',
+																	'0|0|0|0|0||0|0','0|0|0|0|0||0|0','0|0|0|0|0||0|0','0|0|0|0|0||0|0','0|0|0|0|0||0|0','0|0|0|0|0||0|0','".$lyear."','0')");
+			}
+
+        }
+	$insert=mysql_query("UPDATE `st_config` SET `param`='".$param."' WHERE `key`='report_year'");
+      
+}
+
+?>
+
+
+
+<div class='d-flex align-items-center justify-content-between mt-50 mb-20'>
+				<h4>Отчет за <? if ($mn == '')echo t_month();
+								else echo nmonth($mn);
+								
+								
+								echo ' '.$year.' года';
+								?></h4>
+
+			</div>
+
+
+
+
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr'>Актуальный Месяц</a>
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=9'>Сентябрь</a>
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=10'>Октябрь</a>
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=11'>Ноябрь</a>
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=12'>Декабрь</a>
+			  <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=1'>Январь</a>
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=2'>Февраль</a>
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=3'>Март</a>
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=4'>Апрель</a>
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=5'>Май</a>
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=6'>Июнь</a>
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=7'>Июль</a>
+              <a class="btn btn-sm btn-link" href='report.html&sub=congr&mn=8'>Август</a>
+			  
+			  <a class="btn btn-sm btn-link" href='report.html&sub=congr&y=<? echo $rp_ye[0]; ?>'><? echo $rp_ye[0]; ?></a>
+			  <a class="btn btn-sm btn-link" href='report.html&sub=congr&y=<? echo $rp_ye[1]; ?>'><? echo $rp_ye[1]; ?></a>
+                           
+                            
+                                    
+									
+<?
+$cmn = date("n");
+$ye = date("Y");
+$activ=0;
+
+
+if($year == $rp_ye[0] and $cmn >= 9 ){
+	$activ=1;
+}
+
+
+if($activ == 1){
+	
+	
+	
+
+	
+	
+
+
+
+?>		
+
+
+
+
+
+
+
+
+			<div class='card'>
+
+
+
+				<div class='card-body pa-0'>
+					<div class='table-wrap'>
+						<div class='table-responsive'>
+
+
+
+
+		<table class="table table-secondary table-bordered mb-0">
+					<thead class="thead-secondary">
+
+							<tr>
+                            <th class='not-sortable'>№</th>
+							<th class='not-sortable'>Возвещатели</th>
+                            <th class='not-sortable'>Пуб.</th>
+                            <th class='not-sortable'>Видео</th>
+							<th class='not-sortable'>Часы</th>
+							<th class='not-sortable'>Пов П</th>
+							<th class='not-sortable'>Изуч.Б</th>
+                            <th class='not-sortable'>Примечания</th>
+							</tr>
+					</thead>
+					<tbody>
+
+<?
+
+
+
+$tm=0;
+$pb=0;
+$ib=0;
+$pp=0;
+$pv=0;
+
+$vtm=0;
+$vpb=0;
+$vib=0;
+$vpp=0;
+$vpv=0;
+
+
+$ptm=0;
+$ppb=0;
+$pib=0;
+$ppp=0;
+$ppv=0;
+
+
+$otm=0;
+$opb=0;
+$oib=0;
+$opp=0;
+$opv=0;
+
+
+
+$pion=0;
+$ppio=0;
+$vozv=0;
+$vtot=0;
+
+
+$opp=0;
+$opv=0;
+
+
+$i=1;
+
+$mn=date("n");
+				
+				$ref_arr=mysql_query("SELECT * FROM `tb_group` WHERE `cgr`='".$user_arr[6]."' ORDER BY `prim` ASC");
+                while($roww=mysql_fetch_array($ref_arr)){
+					
+					if($roww['prim']!=0){
+						 
+					
+							 
+					$row=mysql_fetch_array(mysql_query("SELECT * FROM `users` WHERE `id`='".$roww['uid']."'"));
+
+                    $rap=mysql_fetch_array(mysql_query("SELECT `id`,`jan`,`feb`,`mart`,`aptil`,`mai`,`iumi`,`iul`,`aug`,`sep`,`oct`,`nov`,`dec` FROM `tb_raport` WHERE `uid`='".$row[0]."' and `year`='".$year."'"));
+					
+                    $one=explode("|",$rap[$mn]);
+                    
+
+                        echo("<tr>");
+                        if($one[2]=='0'){
+                          echo("<th >");
+                         }
+                         else{
+                           echo("<th bgcolor='#00FF7F'>");
+                         }
+                         echo("".$i."</th>");
+						 
+						 
+                    if($one[6]==1){
+                         echo("<th bgcolor='#d1eaff'>");
+                          }
+                    elseif($row['pp_p']==2){
+                        echo("<th bgcolor='#FFDEAD'>");
+                             }
+					else{
+                          echo("<th>");
+                        }
+						echo("<a class='btn btn-sm btn-link' ");
+						
+						
+						if($one[7]==1){
+							
+							echo"style='color: red'";
+						}
+						echo("
+						href='report.html&sub=mb&u=".$row[0]."'>".$row[8]."</a></th>");
+						
+						
+                        
+                        foreach($one as $key => $value){
+
+// подсчет общих значений ===============
+
+if ($key==0 and $one[7]==0){
+  $tm += $value;
+	if ($row['pp_p']==0){
+		$vtm= $vtm + $value;
+	}
+  elseif ($one[6]==1){
+    $ptm= $ptm + $value;
+  }
+  elseif ($row['pp_p']==2){
+    $otm = $otm + $value;
+  }
+
+}
+
+
+//===================
+elseif ($key==1 and $one[7]==0) {
+  $pb += $value;
+
+	if ($row['pp_p']==0){
+		$vpb= $vpb + $value;
+	}
+  elseif ($one[6]==1){
+    $ppb= $ppb + $value;
+  }
+  elseif ($row['pp_p']==2){
+    $opb = $opb + $value;
+  }
+
+}
+//**************************
+
+
+//==========================
+elseif ($key==2 and $one[7]==0) {
+  $ib += $value;
+	if ($row['pp_p']==0){
+    $vib= $vib + $value;
+		if ($value!=0){$vozv++;}
+  }
+  elseif ($one[6]==1){
+    $pib= $pib + $value;
+		if ($value!=0){$ppio++;}
+
+  }
+  elseif ($row['pp_p']==2){
+    $oib = $oib + $value;
+		if ($value!=0){$pion++;}
+  }
+		if ($value!=0){$vtot++;}
+}
+
+//*************************
+
+elseif ($key==3 and $one[7]==0) {
+  $pp += $value;
+
+
+	if ($row['pp_p']==0){
+    $vpp= $vpp + $value;
+  }
+  elseif ($one[6]==1){
+    $ppp= $ppp + $value;
+  }
+  elseif ($row['pp_p']==2){
+    $opp = $opp + $value;
+  }
+}
+
+elseif ($key==4 and $one[7]==0) {
+  $pv += $value;
+
+	if ($row['pp_p']==0){
+    $vpv= $vpv + $value;
+  }
+  elseif ($one[6]==1){
+    $ppv= $ppv + $value;
+  }
+  elseif ($row['pp_p']==2){
+    $opv = $opv + $value;
+  }
+}
+
+//==================================
+
+if($key==0 or $key==1 or $key==2 or $key==3 or $key==4){
+if($value==0){
+
+	if ($row['pp_p']==2){
+	echo("<th bgcolor='#FFDEAD'></th>");
+}
+elseif ($one[6]==1){
+	echo("<th bgcolor='#d1eaff'></th>");
+}
+elseif(($row['pp_p']==0))
+{
+echo("<th></th>");
+}
+
+}
+else {
+
+
+if ($row['pp_p']==2){
+	echo("<th bgcolor='#FFDEAD'>".$value."</th>");
+}
+elseif ($one[6]==1){
+	echo("<th bgcolor='#d1eaff'>".$value."</th>");
+}
+elseif(($row['pp_p']==0))
+{
+echo("<th>".$value."</th>");
+}
+}
+
+}
+if($key==5){echo("<th>".$value."</th>");}
+
+}
+
+echo("</tr>");
+$i++;						
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
+
+
+$ref_arr1=mysql_query("SELECT * FROM `tb_group` WHERE `cgr`='".$user_arr[6]."' and `gid`='".$roww['gid']."'");
+while($row2=mysql_fetch_array($ref_arr1))
+                     {
+						 if ($row2['uid']!=$roww['uid']){
+							 
+						$row=mysql_fetch_array(mysql_query("SELECT * FROM `users` WHERE `id`='".$row2['uid']."'"));
+
+                       $rap=mysql_fetch_array(mysql_query("SELECT `id`,`jan`,`feb`,`mart`,`aptil`,`mai`,`iumi`,`iul`,`aug`,`sep`,`oct`,`nov`,`dec` FROM `tb_raport` WHERE `uid`='".$row[0]."' and `year`='".$year."'"));
+
+                       $one=explode("|",$rap[$mn]);
+
+                        echo("<tr>");
+                        if($one[2]=='0'){
+                          echo("<th >");
+                         }
+                         else{
+                           echo("<th bgcolor='#00FF7F'>");
+                         }
+                         echo("".$i."</th>");
+						 
+                    if($one[6]==1){
+                         echo("<th bgcolor='#d1eaff'>");
+                          }
+                    elseif($row['pp_p']==2){
+                        echo("<th bgcolor='#FFDEAD'>");
+                             }
+					else{
+                          echo("<th>");
+                        }
+						
+						echo("<a class='btn btn-sm btn-link' ");
+						if($one[7]==1){
+							echo"style='color: red'";
+						}
+						echo("href='report.html&sub=mb&u=".$row[0]."'>".$row[8]."</a></th>");
+						
+						
+                      
+foreach($one as $key => $value){
+
+// подсчет общих значений ===============
+
+if ($key==0 and $one[7]==0){
+  $tm += $value;
+	if ($row['pp_p']==0){
+		$vtm= $vtm + $value;
+	}
+  elseif ($one[6]==1){
+    $ptm= $ptm + $value;
+  }
+  elseif ($row['pp_p']==2){
+    $otm = $otm + $value;
+  }
+
+}
+
+
+//===================
+elseif ($key==1 and $one[7]==0) {
+  $pb += $value;
+
+	if ($row['pp_p']==0){
+		$vpb= $vpb + $value;
+	}
+  elseif ($one[6]==1){
+    $ppb= $ppb + $value;
+  }
+  elseif ($row['pp_p']==2){
+    $opb = $opb + $value;
+  }
+
+}
+//**************************
+
+
+//==========================
+elseif ($key==2 and $one[7]==0) {
+  $ib += $value;
+	if ($row['pp_p']==0){
+    $vib= $vib + $value;
+		if ($value!=0){$vozv++;}
+  }
+  elseif ($one[6]==1){
+    $pib= $pib + $value;
+		if ($value!=0){$ppio++;}
+
+  }
+  elseif ($row['pp_p']==2){
+    $oib = $oib + $value;
+		if ($value!=0){$pion++;}
+  }
+		if ($value!=0){$vtot++;}
+}
+
+//*************************
+
+elseif ($key==3 and $one[7]==0) {
+  $pp += $value;
+
+
+	if ($row['pp_p']==0){
+    $vpp= $vpp + $value;
+  }
+  elseif ($one[6]==1){
+    $ppp= $ppp + $value;
+  }
+  elseif ($row['pp_p']==2){
+    $opp = $opp + $value;
+  }
+}
+
+elseif ($key==4 and $one[7]==0) {
+  $pv += $value;
+
+	if ($row['pp_p']==0){
+    $vpv= $vpv + $value;
+  }
+  elseif ($one[6]==1){
+    $ppv= $ppv + $value;
+  }
+  elseif ($row['pp_p']==2){
+    $opv = $opv + $value;
+  }
+}
+
+//==================================
+
+if($key==0 or $key==1 or $key==2 or $key==3 or $key==4){
+if($value==0){
+
+	if ($row['pp_p']==2){
+	echo("<th bgcolor='#FFDEAD'></th>");
+}
+elseif ($one[6]==1){
+	echo("<th bgcolor='#d1eaff'></th>");
+}
+elseif(($row['pp_p']==0))
+{
+echo("<th></th>");
+}
+
+}
+else {
+
+
+if ($row['pp_p']==2){
+	echo("<th bgcolor='#FFDEAD'>".$value."</th>");
+}
+elseif ($one[6]==1){
+	echo("<th bgcolor='#d1eaff'>".$value."</th>");
+}
+elseif($row['pp_p']==0)
+{
+	echo("<th>".$value."</th>");
+}
+}
+
+}
+if($key==5){echo("<th>".$value."</th>");}
+
+}
+
+echo("</tr>");
+$i++;
+}
+						 
+
+}
+
+
+
+//		
+//		
+//	далее иде история отчетов за прошлый месяц или прошлый год	
+//		
+//		
+//		
+//		
+//		
+//		
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++						
+
+				}						 
+						 
+						 
+						 
+						 
+
+
+                       echo("</tr>");
+
+}
+                       echo("<tr><th colspan='8' bgcolor='#EEE8AA'></th></tr>");
+
+                       echo("<tr>
+                        <th colspan='2'> </th>
+                        <th class='not-sortable'>Пуб.</th>
+                        <th class='not-sortable'>Видео</th>
+                        <th class='not-sortable'>Часы</th>
+                        <th class='not-sortable'>Пов. П</th>
+                        <th class='not-sortable'>Изуч. Б</th>
+                        <th colspan='1' ></th>
+                        </tr>");
+
+						echo("<tr>");
+						echo("<th>".$vozv."</th><th>Возвещатели</th>");
+						echo("<th>".$vtm."</th>");
+						echo("<th>".$vpb."</th>");
+						echo("<th>".$vib."</th>");
+						echo("<th>".$vpp."</th>");
+						echo("<th>".$vpv."</th>");
+						echo("<th></th>");
+						echo("</tr>");
+
+
+
+
+
+                        echo("<tr><th>".$ppio."</th><th  bgcolor='#d1eaff'>Подсобные пионеры</th>");
+						echo("<th>".$ptm."</th>");
+                        echo("<th>".$ppb."</th>");
+                        echo("<th>".$pib."</th>");
+                        echo("<th>".$ppp."</th>");
+                        echo("<th>".$ppv."</th>");
+                        echo("<th></th>");
+                        echo("</tr>");
+
+
+						echo("<tr>");
+						echo("<th>".$pion."</th><th bgcolor='#FFDEAD'>Общии пионеры</th>");
+						echo("<th>".$otm."</th>");
+						echo("<th>".$opb."</th>");
+						echo("<th>".$oib."</th>");
+						echo("<th>".$opp."</th>");
+						echo("<th>".$opv."</th>");
+						echo("<th></th>");
+						echo("</tr>");
+
+
+                        echo("<tr><th>".$vtot."</th><th  bgcolor='#EEE8AA'>Итого:</th>");
+                        echo("<th bgcolor='#EEE8AA'>".$tm."</th>");
+                        echo("<th bgcolor='#EEE8AA'>".$pb."</th>");
+                        echo("<th bgcolor='#EEE8AA'>".$ib."</th>");
+                        echo("<th bgcolor='#EEE8AA'>".$pp."</th>");
+                        echo("<th bgcolor='#EEE8AA'>".$pv."</th>");
+                        echo("<th></th>");
+                        echo("</tr>");
+						
+						
+						
+                        $ii=$i-1;
+                        $stm= $tm / $ii;
+                        $spb= $pb / $ii;
+                        $sib= $ib / $ii;
+                        $spp= $pp / $ii;
+                        $spv= $pv / $ii;
+                        echo("<tr><th></th><th >Среднее</th>");
+                        echo("<th>".round($stm, 3)."</th>");
+                        echo("<th>".round($spb, 3)."</th>");
+                        echo("<th>".round($sib, 3)."</th>");
+                        echo("<th>".round($spp, 3)."</th>");
+                        echo("<th>".round($spv, 3)."</th>");
+                        echo("<th></th>");
+                        echo("</tr>");
+?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<?
+}
+
+
+
+
+else{
+
+?>
+
+
+							
+									<div class="accordion" id="accordion_1">
+                                        
+                                        <div class="card">
+                                            <div class="card-header d-flex justify-content-between">
+                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse_1" aria-expanded="false">Подробный Отчет за <? echo nmonth($mn); ?></a>
+                                            </div>
+                                            <div id="collapse_1" class="collapse" data-parent="#accordion_1">
+
+                                                <div class="card-body pa-15"> 
+												
+												
+						
+
+<div class='card'>
+	<div class='card-body pa-0'>			
+		<div class='table-wrap'>
+			<div class='table-responsive'>
+
+
+							<table class="table table-secondary table-bordered mb-0">
+							<thead class="thead-secondary">
+
+							<tr>
+                            <th class='not-sortable'>№</th>
+							<th class='not-sortable'>Возвещатели</th>
+                            <th class='not-sortable'>Пуб.</th>
+                            <th class='not-sortable'>Видео</th>
+							<th class='not-sortable'>Часы</th>
+							<th class='not-sortable'>Пов П</th>
+							<th class='not-sortable'>Изуч.Б</th>
+                            <th class='not-sortable'>Примечания</th>
+							</tr>
+										</thead>
+										<tbody>
+
+<?
+
+
+
+$tm=0;
+$pb=0;
+$ib=0;
+$pp=0;
+$pv=0;
+
+$vtm=0;
+$vpb=0;
+$vib=0;
+$vpp=0;
+$vpv=0;
+
+
+$ptm=0;
+$ppb=0;
+$pib=0;
+$ppp=0;
+$ppv=0;
+
+
+$otm=0;
+$opb=0;
+$oib=0;
+$opp=0;
+$opv=0;
+
+
+
+$pion=0;
+$ppio=0;
+$vozv=0;
+$vtot=0;
+
+
+$opp=0;
+$opv=0;
+
+
+$i=1;
+
+
+
+              $ref_arr=mysql_query("SELECT * FROM `users` WHERE `rid`='".$user_arr[6]."' ORDER BY `name` ASC");
+                while($row=mysql_fetch_array($ref_arr))
+                     {
+
+                       $rap=mysql_fetch_array(mysql_query("SELECT `id`,`jan`,`feb`,`mart`,`aptil`,`mai`,`iumi`,`iul`,`aug`,`sep`,`oct`,`nov`,`dec` FROM `tb_raport` WHERE `uid`='".$row[0]."' and `year`='".$_COOKIE['y']."'"));
+
+                       $one=explode("|",$rap[$mn]);
+
+                        echo("<tr>");
+                        if($one[2]=='0'){
+                          echo("<th >");
+                         }
+                         else{
+                           echo("<th bgcolor='#00FF7F'>");
+                         }
+                         echo("".$i."</th>");
+                    if($one[6]==1){
+                         echo("<th bgcolor='#d1eaff'>");
+                          }
+                    elseif($one[6]==2){
+                        echo("<th bgcolor='#FFDEAD'>");
+                             }
+					else{
+                          echo("<th>");
+                        }
+						echo("<a class='btn btn-sm btn-link' ");
+						
+						
+						if($one[7]==1){
+							
+							echo"style='color: red'";
+						}
+						echo("
+						href='report.html&sub=mb&u=".$row[0]."'>".$row[8]."</a></th>");
+
+
+                        $one=explode("|",$rap[$mn]);
+                        foreach($one as $key => $value){
+
+// подсчет общих значений ===============
+
+if ($key==0){
+  $tm += $value;
+	if ($one[6]==0){
+		$vtm= $vtm + $value;
+	}
+  elseif ($one[6]==1){
+    $ptm= $ptm + $value;
+  }
+  elseif ($one[6]==2){
+    $otm = $otm + $value;
+  }
+
+}
+
+
+//===================
+elseif ($key==1) {
+  $pb += $value;
+
+	if ($one[6]==0){
+		$vpb= $vpb + $value;
+	}
+  elseif ($one[6]==1){
+    $ppb= $ppb + $value;
+  }
+  elseif ($one[6]==2){
+    $opb = $opb + $value;
+  }
+
+}
+//**************************
+
+
+//==========================
+elseif ($key==2) {
+  $ib += $value;
+	if ($one[6]==0){
+    $vib= $vib + $value;
+		if ($value!=0){$vozv++;}
+  }
+  elseif ($one[6]==1){
+    $pib= $pib + $value;
+		if ($value!=0){$ppio++;}
+
+  }
+  elseif ($one[6]==2){
+    $oib = $oib + $value;
+		if ($value!=0){$pion++;}
+  }
+		if ($value!=0){$vtot++;}
+}
+
+//*************************
+
+elseif ($key==3) {
+  $pp += $value;
+
+
+	if ($one[6]==0){
+    $vpp= $vpp + $value;
+  }
+  elseif ($one[6]==1){
+    $ppp= $ppp + $value;
+  }
+  elseif ($one[6]==2){
+    $opp = $opp + $value;
+  }
+}
+
+elseif ($key==4) {
+  $pv += $value;
+
+	if ($one[6]==0){
+    $vpv= $vpv + $value;
+  }
+  elseif ($one[6]==1){
+    $ppv= $ppv + $value;
+  }
+  elseif ($one[6]==2){
+    $opv = $opv + $value;
+  }
+}
+
+//==================================
+
+if($key==0 or $key==1 or $key==2 or $key==3 or $key==4){
+if($value==0){
+
+	if ($one[6]==2){
+	echo("<th bgcolor='#FFDEAD'></th>");
+}
+elseif ($one[6]==1){
+	echo("<th bgcolor='#d1eaff'></th>");
+}
+elseif(($one[6]==0))
+{
+echo("<th></th>");
+}
+
+}
+else {
+
+
+	if ($one[6]==2){
+	echo("<th bgcolor='#FFDEAD'>".$value."</th>");
+}
+elseif ($one[6]==1){
+	echo("<th bgcolor='#d1eaff'>".$value."</th>");
+}
+elseif(($one[6]==0))
+{
+echo("<th>".$value."</th>");
+}
+}
+}
+if($key==5){echo("<th>".$value."</th>");}
+}
+echo("</tr>");
+$i++;
+
+
+
+}
+
+
+?>
+
+</tbody>
+					</table>							
+			</div>
+        </div>
+    </div>
+ </div>
+ 	</div>
+        </div>
+    </div>
+ </div>
+									
+				<br>					
+<div class='card'>
+	<div class='card-body pa-0'>			
+		<div class='table-wrap'>
+			<div class='table-responsive'>
+				<table class="table table-secondary table-bordered mb-0">
+					<thead class="thead-secondary">
+						</thead>
+						<tbody>
+						<?
+						echo("<tr>
+
+                        <th colspan='2'> </th>
+                        <th class='not-sortable'>Пуб.</th>
+                        <th class='not-sortable'>Видео</th>
+                        <th class='not-sortable'>Часы</th>
+                        <th class='not-sortable'>Пов. П</th>
+                        <th class='not-sortable'>Изуч. Б</th>
+                        
+                        </tr>");
+
+						echo("<tr>");
+						echo("<th>".$vozv."</th><th>Возвещатели</th>");
+						echo("<th>".$vtm."</th>");
+						echo("<th>".$vpb."</th>");
+						echo("<th>".$vib."</th>");
+						echo("<th>".$vpp."</th>");
+						echo("<th>".$vpv."</th>");
+						echo("</tr>");
+
+
+
+
+
+                        echo("<tr><th>".$ppio."</th><th bgcolor='#d1eaff'>Подсобные пионеры</th>");
+						echo("<th>".$ptm."</th>");
+                        echo("<th>".$ppb."</th>");
+                        echo("<th>".$pib."</th>");
+                        echo("<th>".$ppp."</th>");
+                        echo("<th>".$ppv."</th>");
+						echo("</tr>");
+
+
+						echo("<tr>");
+						echo("<th>".$pion."</th><th bgcolor='#FFDEAD'>Общии пионеры</th>");
+						echo("<th>".$otm."</th>");
+						echo("<th>".$opb."</th>");
+						echo("<th>".$oib."</th>");
+						echo("<th>".$opp."</th>");
+						echo("<th>".$opv."</th>");
+						echo("</tr>");
+
+
+                        echo("<tr><th>".$vtot."</th><th  bgcolor='#EEE8AA'>Итого:</th>");
+						echo("<th bgcolor='#EEE8AA'>".$tm."</th>");
+                        echo("<th bgcolor='#EEE8AA'>".$pb."</th>");
+                        echo("<th bgcolor='#EEE8AA'>".$ib."</th>");
+                        echo("<th bgcolor='#EEE8AA'>".$pp."</th>");
+                        echo("<th bgcolor='#EEE8AA'>".$pv."</th>");
+
+                    
+
+
+                        echo("</tr>");
+                        $ii=$i-1;
+                        $stm= $tm / $ii;
+                        $spb= $pb / $ii;
+                        $sib= $ib / $ii;
+                        $spp= $pp / $ii;
+                        $spv= $pv / $ii;
+                        echo("<tr><th></th><th >Среднее</th>");
+						echo("<th>".round($stm, 3)."</th>");
+                        echo("<th>".round($spb, 3)."</th>");
+                        echo("<th>".round($sib, 3)."</th>");
+                        echo("<th>".round($spp, 3)."</th>");
+                        echo("<th>".round($spv, 3)."</th>");
+						echo("</tr>");
+											
+				 
+?>
+															 
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+                                   
+                    
+<?
+}
+?>

@@ -1,0 +1,17 @@
+RewriteEngine On
+Header set Cache-Control "max-age=86400, public"
+
+Options +FollowSymlinks -Indexes
+RewriteBase /
+RewriteRule ^.htaccess$ -[F]
+
+RewriteCond %{HTTPS} off 
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+RewriteRule ^([a-zA-Z]{0,25}+).html([a-zA-Z0-9\&\=]{0,100}+)? index.php?page=$1$2 [L]
+
+
+
+
+
+
